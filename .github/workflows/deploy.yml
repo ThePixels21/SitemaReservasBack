@@ -1,4 +1,4 @@
-name: Deploy
+ name: Deploy
 
 on:
   push:
@@ -24,6 +24,12 @@ jobs:
 
         # Nos conectamos a la instancia EC2 usando SSH
         ssh -o StrictHostKeyChecking=no -i private_key.pem ${USER_NAME}@${HOST_NAME} '
+
+        # Verificamos si el directorio es un repositorio Git
+        if [ ! -d "/home/ubuntu/sistemaReservasBack/.git" ]; then
+          # Si no es un repositorio Git, clonamos el repositorio
+          git clone https://github.com/ThePixels21/SistemaReservasBack.git /home/ubuntu/sistemaReservasBack;
+        fi
 
         # Comandos para desplegar el contenedor de Docker
         cd /home/ubuntu/sistemaReservasBack &&
