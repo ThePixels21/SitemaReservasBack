@@ -20,10 +20,10 @@ jobs:
 
       run: |
         # Guardamos la llave privada y le asignamos los permisos correctos
-        echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+        echo "$PRIVATE_KEY" > private_key.pem && chmod 400 private_key.pem
 
         # Nos conectamos a la instancia EC2 usando SSH
-        ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOST_NAME} '
+        ssh -o StrictHostKeyChecking=no -i private_key.pem ${USER_NAME}@${HOST_NAME} '
 
         # Comandos para desplegar el contenedor de Docker
         cd /home/ubuntu/sistemaReservasBack &&
@@ -35,7 +35,7 @@ jobs:
         git pull origin main &&
 
         # Construimos y ejecutamos el contenedor de Docker
-        docker-compose down &&
-        docker-compose build &&
-        docker-compose up -d
+        docker compose down &&
+        docker compose build &&
+        docker compose up -d
         '
