@@ -6,7 +6,7 @@ between users, roles, and groups and includes cascading delete behaviors.
 
 import os
 from dotenv import load_dotenv
-from peewee import MySQLDatabase
+from peewee import Model, MySQLDatabase, DateField, AutoField, CharField
 
 # Load environment variables from .env file
 load_dotenv()
