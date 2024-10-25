@@ -7,7 +7,7 @@ lifecycle, and includes routes.
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from starlette.responses import RedirectResponse
-from FastAPI.app.config.database import database as connection
+from config.database import database as connection
 
 @asynccontextmanager
 async def manage_lifespan(_app: FastAPI):

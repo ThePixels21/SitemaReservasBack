@@ -6,6 +6,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
+from app.config.settings import DATABASE
 
 
 Base = declarative_base()
@@ -54,3 +55,11 @@ class schedule(Base):
     openingTime = Column(String(250), nullable=False)
     closingTime = Column(String(250), nullable=False)
     status = Column(String(250), nullable=False)
+
+
+# Configurar la base de datos
+DATABASE_URL = f"mysql+pymysql://{DATABASE['user']}:{DATABASE['password']}@{DATABASE['host']}/{DATABASE['name']}"
+engine = create_engine(DATABASE_URL)
+
+# Crear una sesión de base de datos
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
