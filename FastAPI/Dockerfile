@@ -1,7 +1,8 @@
 FROM python:3.12
 
 COPY ./app /app
-COPY ../requirements.txt /app
+COPY ./requirements.txt /app
+COPY ./statup.sh /app
 
 WORKDIR /app
 
@@ -10,6 +11,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y mariadb-client &&
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
+RUN chmod +x statup.sh
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["./statup.sh"]
+
 
