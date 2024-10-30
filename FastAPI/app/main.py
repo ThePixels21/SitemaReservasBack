@@ -5,8 +5,8 @@ This module sets up the FastAPI application, manages the database connection
 lifecycle, and includes routes.
 """
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
-from starlette.responses import RedirectResponse
+from fastapi import FastAPI #pylint: disable=import-error
+from starlette.responses import RedirectResponse #pylint: disable=import-error
 from database import database as connection
 
 @asynccontextmanager

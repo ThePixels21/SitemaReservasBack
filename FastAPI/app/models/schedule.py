@@ -38,3 +38,10 @@ class Schedule(BaseModel):
     openingTime: datetime
     closingTime: datetime
     status: ScheduleStatusEnum
+
+    def closing_time_must_be_later(cls, closingTime, values):
+        """Validates that closingTime is after openingTime."""
+        openingTime = values.get('openingTime')
+        if openingTime and closingTime <= openingTime:
+            raise ValueError('closingTime must be later than openingTime')
+        return closingTime

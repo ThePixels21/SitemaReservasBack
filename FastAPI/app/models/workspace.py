@@ -10,11 +10,12 @@ Classes:
 """
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
 
 class WorkspaceEnum(str, Enum):
     """
-    Enumeration for the type of a workspace.
+    Enumeration for the type of workspace.
 
     Attributes:
         OFFICE (str): Indicates the workspace is an office.
@@ -40,7 +41,7 @@ class Workspace(BaseModel):
     """
     id: int
     type: WorkspaceEnum
-    capacity: int
-    hourlyRate: float
+    capacity: int = Field(..., gt=0, description="Capacity must be greater than 0")
+    hourlyRate: float = Field(..., gt=0, description="Hourly rate must be positive")
     availableSchedules: list
     createdBy: str
