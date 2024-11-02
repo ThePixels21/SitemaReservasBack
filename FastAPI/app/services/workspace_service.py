@@ -1,9 +1,13 @@
+# pylint: disable=unused-import
+from datetime import datetime
+
 from peewee import DoesNotExist
 
 from FastAPI.app.database import WorkspaceModel, ScheduleModel
 from FastAPI.app.models.workspace import Workspace
 
 from fastapi import Body
+# pylint: enable=unused-import
 
 class WorkspaceService:
     """
@@ -17,7 +21,9 @@ class WorkspaceService:
         results = []
 
         for workspace in workspaces:
-            schedules = ScheduleModel.select().where(ScheduleModel.workspace == workspace['id']).dicts()
+            schedules = ScheduleModel.select().where(
+                ScheduleModel.workspace == workspace['id']
+            ).dicts()
             workspace['schedules'] = list(schedules)
             results.append(workspace)
 
@@ -29,7 +35,7 @@ class WorkspaceService:
         """
         try:
             workspace = WorkspaceModel.get(WorkspaceModel.id == workspace_id)
-            schedules = ScheduleModel.select().where(ScheduleModel.workspace == workspace_id).dicts()
+            schedules = ScheduleModel.select().where(ScheduleModel.workspace==workspace_id).dicts()
             return {**workspace.__data__, 'schedules': list(schedules)}
         except DoesNotExist:
             return "Workspace not found"
@@ -56,12 +62,29 @@ class WorkspaceService:
 
     def delete_workspace(self, workspace_id: int):
         """
-        Delete a workspace and its schedules.
+        Delete a workspace and its schedules if no future schedules are assigned.
+
+        Args:
+            workspace_id (int): The ID of the workspace to delete.
+
+        Returns:
+            str: A message indicating the result of the deletion attempt.
         """
         try:
+            # Check for future schedules
+            future_schedules = ScheduleModel.select().where(
+                (ScheduleModel.id == workspace_id) &
+                (ScheduleModel.openingTime > datetime.now())
+            )
+
+            if future_schedules.exists():
+                return "Cannot delete workspace with future schedules assigned."
+
+            # Delete the workspace if no future schedules
             workspace = WorkspaceModel.get(WorkspaceModel.id == workspace_id)
             workspace.delete_instance()
             return "Workspace and related schedules deleted successfully"
+
         except DoesNotExist:
             return "Workspace not found"
 

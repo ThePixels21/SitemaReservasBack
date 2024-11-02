@@ -5,11 +5,13 @@ This module sets up the FastAPI application, manages the database connection
 lifecycle, and includes routes.
 """
 from contextlib import asynccontextmanager
-from fastapi import FastAPI,Depends
 from starlette.responses import RedirectResponse
+
 from helpers.api_key_auth import get_api_key
 from database import database as connection
 from routes.user_route import user_route
+from routes.workspace_route import workspace_route
+from fastapi import FastAPI,Depends
 
 @asynccontextmanager
 async def manage_lifespan(_app: FastAPI):
@@ -40,3 +42,9 @@ async def read_root():
     return RedirectResponse(url="/docs")
 
 app.include_router(user_route,prefix="/users",tags=["Users"],dependencies=[Depends(get_api_key)])
+app.include_router(
+    workspace_route,
+    prefix="/workspaces",
+    tags=["workspaces"],
+    dependencies=[Depends(get_api_key)]
+)

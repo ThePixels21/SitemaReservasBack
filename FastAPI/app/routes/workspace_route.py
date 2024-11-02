@@ -10,15 +10,17 @@ Routes:
     - POST /workspaces/{workspace_id}/schedules: Add a new schedule to a workspace.
     - DELETE /schedules/{schedule_id}: Delete a specific schedule by ID.
 """
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Depends
 
+from FastAPI.app.database import PersonModel
+from FastAPI.app.helpers.api_key_auth import admin_required
 from FastAPI.app.models.workspace import Workspace
 from FastAPI.app.services.workspace_service import WorkspaceService
 
-router = APIRouter()
+workspace_route = APIRouter()
 workspace_service = WorkspaceService()
 
-@router.get("/workspaces")
+@workspace_route.get("/workspaces")
 def get_workspaces():
     """
     Retrieve a list of all workspaces.
@@ -28,7 +30,7 @@ def get_workspaces():
     """
     return workspace_service.get_workspaces()
 
-@router.get("/workspaces/{workspace_id}")
+@workspace_route.get("/workspaces/{workspace_id}")
 def get_workspace(workspace_id: int):
     """
     Retrieve a specific workspace by its ID.
@@ -42,25 +44,33 @@ def get_workspace(workspace_id: int):
     """
     return workspace_service.get_workspace(workspace_id)
 
-@router.post("/workspaces")
-def create_workspace(workspace: Workspace = Body(...)):
+@workspace_route.post("/workspaces")
+def create_workspace(
+    workspace: Workspace = Body(...),
+    _current_user: PersonModel = Depends(admin_required)
+):
     """
     Create a new workspace.
 
     Args:
         workspace (Workspace): The workspace object to create.
+        _current_user (PersonModel): The current user, must be an admin.
 
     Returns:
-        Workspace: The created workspace object.
+        dict: The created workspace object.
     """
     return workspace_service.create_workspace(workspace)
 
-@router.put("/workspaces/{workspace_id}")
-def update_workspace(workspace_id: int, workspace_data: dict):
+@workspace_route.put("/workspaces/{workspace_id}")
+def update_workspace(
+        workspace_id: int,
+        workspace_data: dict,
+        _current_user: PersonModel = Depends(admin_required)):
     """
     Update an existing workspace.
 
     Args:
+        _current_user: The current user, must be an admin.
         workspace_id (int): The ID of the workspace to update.
         workspace_data (dict): A dictionary containing the updated workspace data.
 
@@ -69,11 +79,14 @@ def update_workspace(workspace_id: int, workspace_data: dict):
     """
     return workspace_service.update_workspace(workspace_id, workspace_data)
 
-def delete_workspace(workspace_id: int):
+def delete_workspace(
+        workspace_id: int,
+        _current_user: PersonModel = Depends(admin_required)):
     """
     Delete a workspace and its schedules.
 
     Args:
+        _current_user: PersonModel: The current user, must be an admin.
         workspace_id (int): The ID of the workspace to delete.
 
     Returns:
@@ -81,7 +94,7 @@ def delete_workspace(workspace_id: int):
     """
     return workspace_service.delete_workspace(workspace_id)
 
-@router.post("/workspaces/{workspace_id}/schedules")
+@workspace_route.post("/workspaces/{workspace_id}/schedules")
 def add_schedule(workspace_id: int, schedule_data: dict):
     """
     Add a new schedule to a workspace.

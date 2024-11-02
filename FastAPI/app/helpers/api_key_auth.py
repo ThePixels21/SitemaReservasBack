@@ -10,6 +10,9 @@ from fastapi import HTTPException, Security, status
 from fastapi.security.api_key import APIKeyHeader
 from dotenv import load_dotenv
 
+from FastAPI.app.database import PersonModel
+from FastAPI.app.models.person import RoleEnum
+
 # Load environment variables
 load_dotenv()
 
@@ -39,3 +42,20 @@ async def get_api_key(api_key: str = Security(api_key_header)):
             "message": "Unauthorized",
         },
     )
+
+
+def admin_required(user_id: int):
+    """
+    Verifies if the user has an admin role. Only admins can proceed.
+
+    :param user_id: ID of the current user.
+    :return: The PersonModel instance if the user is an admin.
+    :raises HTTPException: If the user is not an admin.
+    """
+    user = PersonModel.get_or_none(PersonModel.id == user_id)
+    if user is None or user.role != RoleEnum.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required."
+        )
+    return user
