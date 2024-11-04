@@ -37,7 +37,6 @@ class Person(BaseModel):
         password (str): The password for the person's account.
         role (RoleEnum): The role of the person, which can be either 'Admin' or 'User'.
     """
-    id: int
     name: str
     email: str
     password: str

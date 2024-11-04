@@ -95,6 +95,10 @@ class UserService:
                 if existing_user.email == user.email:
                     raise HTTPException(status_code=400, detail="User already exists")
 
+            if "@" not in user.email or not user.email.split('@')[-1]:
+                raise HTTPException(status_code=400,
+                detail="Email must contain an '@' and a domain (e.g., '@gmail.com')"
+                )
             # Create the user
             created_user = PersonModel.create(
                 name=user.name,
@@ -137,7 +141,6 @@ class UserService:
                 raise HTTPException(
                     status_code=400, detail="Password must contain at least one number"
                     )
-
             if user.password and not any(char.isalpha() for char in user.password):
                 raise HTTPException(
                     status_code=400, detail="Password must contain at least one letter"
@@ -147,6 +150,10 @@ class UserService:
                 raise HTTPException(
                     status_code=400, detail="Password must contain a special character"
                     )
+
+            if "@" not in user.email or not user.email.split('@')[-1]:
+                raise HTTPException(status_code=400,
+                detail="Email must contain an '@' and a domain (e.g., '@gmail.com')")
 
             # Check if another user with the same email already exists
             for existing_user in PersonModel.select():
@@ -183,7 +190,8 @@ class UserService:
             HTTPException: If the user is not found in the database.
         """
         try:
-            PersonModel.delete().where(PersonModel.id == user_id).execute()
+            person = PersonModel.get(PersonModel.id == user_id)
+            person.delete_instance()
             return {"status": "User deleted successfully"}
         except DoesNotExist as exc:
             raise HTTPException(status_code=404, detail="User not found") from exc
