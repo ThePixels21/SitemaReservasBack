@@ -32,14 +32,12 @@ class Workspace(BaseModel):
     available schedules, and the user who created it.
 
     Attributes:
-        id (int): The unique identifier for the workspace.
         type (WorkspaceEnum): The type of the workspace (e.g., Office, Meeting Room, Desk).
         capacity (int): The capacity of the workspace.
         hourlyRate (float): The hourly rate for reserving the workspace.
         availableSchedules (list): A list of available schedules for the workspace.
         createdBy (str): The user who created the workspace.
     """
-    id: int
     type: WorkspaceEnum
     capacity: int = Field(..., gt=0, description="Capacity must be greater than 0")
     hourlyRate: float = Field(..., gt=0, description="Hourly rate must be positive")

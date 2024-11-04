@@ -10,15 +10,21 @@ Routes:
     - POST /workspaces/{workspace_id}/schedules: Add a new schedule to a workspace.
     - DELETE /schedules/{schedule_id}: Delete a specific schedule by ID.
 """
+from http.client import HTTPException
+
 from fastapi import APIRouter, Body, Depends
 
 from database import PersonModel
 from helpers.api_key_auth import admin_required
 from models.workspace import Workspace
+from models.schedule import Schedule
 from services.workspace_service import WorkspaceService
+from services import schedule_service
+
 
 workspace_route = APIRouter()
 workspace_service = WorkspaceService()
+schedule_service = schedule_service.ScheduleService()
 
 @workspace_route.get("/")
 def get_workspaces():
@@ -95,18 +101,21 @@ def delete_workspace(
     return workspace_service.delete_workspace(workspace_id)
 
 @workspace_route.post("/{workspace_id}/schedules")
-def add_schedule(workspace_id: int, schedule_data: dict):
+def add_schedule(workspace_id: int, schedule: Schedule):
     """
     Add a new schedule to a workspace.
 
     Args:
         workspace_id (int): The ID of the workspace to add the schedule to.
-        schedule_data (dict): A dictionary containing the schedule details.
+        schedule (Schedule): Schedule details validated by Pydantic.
 
     Returns:
         str: A message indicating whether the schedule was added successfully.
     """
-    return workspace_service.add_schedule(workspace_id, schedule_data)
+    result = schedule_service.add_schedule(workspace_id, schedule.dict())
+    if result == "Workspace not found":
+        raise HTTPException(status_code=404, detail="Workspace not found")
+    return result
 
 def delete_schedule(schedule_id: int):
     """

@@ -28,11 +28,16 @@ database = MySQLDatabase(
     port=int(os.getenv("MYSQL_PORT")),
 )
 
+
+
 # Secret key and token expiration settings
 secret_key: str = os.getenv('SECRET_KEY')
 token_expire: int = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES', '30'))  # Default is now a string
 access_token_expire_minutes = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES'))
 
+def initialize_database():
+    with database:
+        database.create_tables([PersonModel, WorkspaceModel, ScheduleModel], safe=True)
 
 class PersonModel(Model):
     """
@@ -96,7 +101,7 @@ class WorkspaceModel(Model):
         """
         # pylint: disable=too-few-public-methods
         database = database
-        table_name = 'Workspace'
+        table_name = 'workspace'
 
 class ScheduleModel(Model):
     """
@@ -105,14 +110,14 @@ class ScheduleModel(Model):
 
     Attributes:
     - id (AutoField): Primary key for the schedule.
-    - openingTime (DateTimeField): Opening time of the schedule.
-    - closingTime (DateTimeField): Closing time of the schedule.
+    - opening_time (DateTimeField): Opening time of the schedule.
+    - closing_time (DateTimeField): Closing time of the schedule.
     - status (CharField): Status of the schedule.
     - workspace (ForeignKeyField): Associated workspace with a cascading delete behavior.
     """
     id = AutoField(primary_key=True)
-    openingTime = DateTimeField()
-    closingTime = DateTimeField()
+    opening_time = DateTimeField()
+    closing_time = DateTimeField()
     status = CharField()
     workspace = ForeignKeyField(WorkspaceModel, backref='schedules', on_delete='CASCADE')
 
@@ -126,4 +131,4 @@ class ScheduleModel(Model):
         """
         # pylint: disable=too-few-public-methods
         database = database
-        table_name = 'Schedule'
+        table_name = 'schedule'

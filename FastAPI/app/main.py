@@ -7,6 +7,7 @@ lifecycle, and includes routes.
 from contextlib import asynccontextmanager
 from starlette.responses import RedirectResponse
 
+from database import initialize_database
 from helpers.api_key_auth import get_api_key
 from database import database as connection
 from routes.user_route import user_route
@@ -23,6 +24,7 @@ async def manage_lifespan(_app: FastAPI):
     if connection.is_closed():
         connection.connect()
     try:
+        initialize_database()
         yield
     finally:
         if not connection.is_closed():

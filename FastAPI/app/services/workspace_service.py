@@ -45,7 +45,6 @@ class WorkspaceService:
         Create a new workspace.
         """
         WorkspaceModel.create(
-            id=workspace.id,
             type=workspace.type.value,
             capacity=workspace.capacity,
             hourlyRate=workspace.hourlyRate,
