@@ -73,7 +73,7 @@ class WorkspaceService:
             # Check for future schedules
             future_schedules = ScheduleModel.select().where(
                 (ScheduleModel.id == workspace_id) &
-                (ScheduleModel.openingTime > datetime.now())
+                (ScheduleModel.opening_time > datetime.now())
             )
 
             if future_schedules.exists():
@@ -82,7 +82,7 @@ class WorkspaceService:
             # Delete the workspace if no future schedules
             workspace = WorkspaceModel.get(WorkspaceModel.id == workspace_id)
             workspace.delete_instance()
-            return "Workspace and related schedules deleted successfully"
+            return "Workspace deleted successfully"
 
         except DoesNotExist:
             return "Workspace not found"

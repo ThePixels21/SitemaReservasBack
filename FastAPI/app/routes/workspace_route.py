@@ -85,6 +85,7 @@ def update_workspace(
     """
     return workspace_service.update_workspace(workspace_id, workspace_data)
 
+@workspace_route.delete("/{workspace_id}")
 def delete_workspace(
         workspace_id: int,
         _current_user: PersonModel = Depends(admin_required)):
@@ -101,27 +102,42 @@ def delete_workspace(
     return workspace_service.delete_workspace(workspace_id)
 
 @workspace_route.post("/{workspace_id}/schedules")
-def add_schedule(workspace_id: int, schedule: Schedule):
+def add_schedule(
+        workspace_id: int, schedule: Schedule,
+        _current_user: PersonModel = Depends(admin_required)):
     """
     Add a new schedule to a workspace.
 
     Args:
-        workspace_id (int): The ID of the workspace to add the schedule to.
-        schedule (Schedule): Schedule details validated by Pydantic.
+        workspace_id (int): The ID of the workspace to which the schedule will be added.
+        schedule (Schedule): The schedule object containing the details of the schedule.
+        _current_user (PersonModel): The current user, must be an admin.
 
     Returns:
         str: A message indicating whether the schedule was added successfully.
+
+    Raises:
+        HTTPException: If the workspace is not found.
     """
-    result = schedule_service.add_schedule(workspace_id, schedule.dict())
+    result = schedule_service.add_schedule(workspace_id, {
+        "opening_time": schedule.opening_time,
+        "closing_time": schedule.closing_time,
+        "status": schedule.status
+    })
     if result == "Workspace not found":
         raise HTTPException(status_code=404, detail="Workspace not found")
     return result
 
-def delete_schedule(schedule_id: int):
+@workspace_route.delete("/schedules/{schedule_id}")
+def delete_schedule(
+        schedule_id: int,
+        _current_user: PersonModel = Depends(admin_required)
+):
     """
     Delete a specific schedule by ID.
 
     Args:
+        _current_user:
         schedule_id (int): The ID of the schedule to delete.
 
     Returns:
