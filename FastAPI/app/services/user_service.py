@@ -94,9 +94,11 @@ class UserService:
             for existing_user in PersonModel.select():
                 if existing_user.email == user.email:
                     raise HTTPException(status_code=400, detail="User already exists")
-            
+
             if "@" not in user.email or not user.email.split('@')[-1]:
-                raise HTTPException(status_code=400, detail="Email must contain an '@' and a domain (e.g., '@gmail.com')")
+                raise HTTPException(status_code=400,
+                detail="Email must contain an '@' and a domain (e.g., '@gmail.com')"
+                )
             # Create the user
             created_user = PersonModel.create(
                 name=user.name,
@@ -139,7 +141,6 @@ class UserService:
                 raise HTTPException(
                     status_code=400, detail="Password must contain at least one number"
                     )
-
             if user.password and not any(char.isalpha() for char in user.password):
                 raise HTTPException(
                     status_code=400, detail="Password must contain at least one letter"
@@ -149,9 +150,10 @@ class UserService:
                 raise HTTPException(
                     status_code=400, detail="Password must contain a special character"
                     )
-            
+
             if "@" not in user.email or not user.email.split('@')[-1]:
-                raise HTTPException(status_code=400, detail="Email must contain an '@' and a domain (e.g., '@gmail.com')")
+                raise HTTPException(status_code=400,
+                detail="Email must contain an '@' and a domain (e.g., '@gmail.com')")
 
             # Check if another user with the same email already exists
             for existing_user in PersonModel.select():
