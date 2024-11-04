@@ -3,8 +3,8 @@ from datetime import datetime
 
 from peewee import DoesNotExist
 
-from FastAPI.app.database import WorkspaceModel, ScheduleModel
-from FastAPI.app.models.workspace import Workspace
+from database import WorkspaceModel, ScheduleModel
+from models.workspace import Workspace
 
 from fastapi import Body
 # pylint: enable=unused-import

@@ -10,8 +10,8 @@ from fastapi import HTTPException, Security, status
 from fastapi.security.api_key import APIKeyHeader
 from dotenv import load_dotenv
 
-from FastAPI.app.database import PersonModel
-from FastAPI.app.models.person import RoleEnum
+from database import PersonModel
+from models.person import RoleEnum
 
 # Load environment variables
 load_dotenv()

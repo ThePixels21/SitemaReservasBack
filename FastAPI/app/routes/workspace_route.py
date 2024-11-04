@@ -12,15 +12,15 @@ Routes:
 """
 from fastapi import APIRouter, Body, Depends
 
-from FastAPI.app.database import PersonModel
-from FastAPI.app.helpers.api_key_auth import admin_required
-from FastAPI.app.models.workspace import Workspace
-from FastAPI.app.services.workspace_service import WorkspaceService
+from database import PersonModel
+from helpers.api_key_auth import admin_required
+from models.workspace import Workspace
+from services.workspace_service import WorkspaceService
 
 workspace_route = APIRouter()
 workspace_service = WorkspaceService()
 
-@workspace_route.get("/workspaces")
+@workspace_route.get("/")
 def get_workspaces():
     """
     Retrieve a list of all workspaces.
@@ -30,7 +30,7 @@ def get_workspaces():
     """
     return workspace_service.get_workspaces()
 
-@workspace_route.get("/workspaces/{workspace_id}")
+@workspace_route.get("/{workspace_id}")
 def get_workspace(workspace_id: int):
     """
     Retrieve a specific workspace by its ID.
@@ -44,7 +44,7 @@ def get_workspace(workspace_id: int):
     """
     return workspace_service.get_workspace(workspace_id)
 
-@workspace_route.post("/workspaces")
+@workspace_route.post("/")
 def create_workspace(
     workspace: Workspace = Body(...),
     _current_user: PersonModel = Depends(admin_required)
@@ -61,7 +61,7 @@ def create_workspace(
     """
     return workspace_service.create_workspace(workspace)
 
-@workspace_route.put("/workspaces/{workspace_id}")
+@workspace_route.put("/{workspace_id}")
 def update_workspace(
         workspace_id: int,
         workspace_data: dict,
@@ -94,7 +94,7 @@ def delete_workspace(
     """
     return workspace_service.delete_workspace(workspace_id)
 
-@workspace_route.post("/workspaces/{workspace_id}/schedules")
+@workspace_route.post("/{workspace_id}/schedules")
 def add_schedule(workspace_id: int, schedule_data: dict):
     """
     Add a new schedule to a workspace.
