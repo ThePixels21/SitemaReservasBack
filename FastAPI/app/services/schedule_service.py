@@ -15,7 +15,7 @@ Methods:
         Deletes a specific schedule by ID.
 """
 from peewee import DoesNotExist
-from database import WorkspaceModel, ScheduleModel
+from database import WorkspaceModel, ScheduleModel # pylint: disable=import-error
 
 class ScheduleService:
     """

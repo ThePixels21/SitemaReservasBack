@@ -36,9 +36,18 @@ token_expire: int = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES', '30'))  # Defau
 access_token_expire_minutes = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES'))
 
 def initialize_database():
+    """
+    Initialize the database by creating the necessary tables.
+
+    This function connects to the database and creates the tables for the
+    `PersonModel`, `WorkspaceModel`, and `ScheduleModel` if they do not
+    already exist.
+
+    Returns:
+        None
+    """
     with database:
         database.create_tables([PersonModel, WorkspaceModel, ScheduleModel], safe=True)
-
 class PersonModel(Model):
     """
     Represents a person with attributes such as ID, name, email, password, and role.

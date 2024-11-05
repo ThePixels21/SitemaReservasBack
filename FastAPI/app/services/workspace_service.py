@@ -1,9 +1,21 @@
-# pylint: disable=unused-import
+"""
+This module provides services for managing workspaces and their schedules.
+
+Classes:
+    - WorkspaceService: A service class for managing workspaces and their schedules.
+
+Methods:
+    - get_workspaces: Retrieves all workspaces, including their schedules.
+    - get_workspace: Retrieves a specific workspace along with its schedules.
+    - create_workspace: Creates a new workspace.
+    - update_workspace: Updates an existing workspace.
+    - delete_workspace: Deletes a workspace and its schedules if no future schedules are assigned.
+"""
 from datetime import datetime
 
 from peewee import DoesNotExist
 
-from database import WorkspaceModel, ScheduleModel
+from database import (WorkspaceModel, ScheduleModel)
 from models.workspace import Workspace
 
 from fastapi import Body
@@ -86,4 +98,3 @@ class WorkspaceService:
 
         except DoesNotExist:
             return "Workspace not found"
-

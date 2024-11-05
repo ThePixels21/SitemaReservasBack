@@ -15,11 +15,11 @@ Imports:
 """
 
 from peewee import DoesNotExist, IntegrityError
-from fastapi import Body, HTTPException
 
-from models.person import User
-from database import PersonModel
-from services.auth_service import get_password_hash
+from models.person import User # pylint: disable=import-error
+from database import PersonModel # pylint: disable=import-error
+from services.auth_service import get_password_hash # pylint: disable=import-error
+from fastapi import Body, HTTPException
 
 
 class UserService:

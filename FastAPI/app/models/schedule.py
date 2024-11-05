@@ -11,7 +11,7 @@ from datetime import datetime
 from enum import Enum
 
 from pydantic import BaseModel
-from pydantic.v1.class_validators import Validator, validator, root_validator
+from pydantic.v1.class_validators import root_validator
 
 
 class ScheduleStatusEnum(str, Enum):
@@ -40,8 +40,22 @@ class Schedule(BaseModel):
     closing_time: datetime
     status: ScheduleStatusEnum
 
+    @classmethod
     @root_validator(pre=True)
     def validate_times(cls, values):
+        """
+        Validate that the closing time is greater than the opening time.
+    
+        Args:
+            cls (Type[Schedule]): The class being validated.
+            values (dict): The values to validate.
+    
+        Returns:
+            dict: The validated values.
+    
+        Raises:
+            ValueError: If closing_time is not greater than opening_time.
+        """
         opening_time = values.get('opening_time')
         closing_time = values.get('closing_time')
         if opening_time and closing_time and closing_time <= opening_time:
