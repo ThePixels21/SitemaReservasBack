@@ -7,9 +7,8 @@ lifecycle, and includes routes.
 from contextlib import asynccontextmanager
 from starlette.responses import RedirectResponse
 
-from database import initialize_database
+from database import initialize_database, database as connection
 from helpers.api_key_auth import get_api_key
-from database import database as connection
 from routes.user_route import user_route
 from routes.workspace_route import workspace_route
 from fastapi import FastAPI,Depends

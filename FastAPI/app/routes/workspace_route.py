@@ -12,15 +12,15 @@ Routes:
 """
 from http.client import HTTPException
 
+
+from database import PersonModel # pylint: disable=import-error
+from helpers.api_key_auth import admin_required # pylint: disable=import-error
+from models.workspace import Workspace # pylint: disable=import-error
+from models.schedule import Schedule # pylint: disable=import-error
+from services.workspace_service import WorkspaceService # pylint: disable=import-error
+from services import schedule_service # pylint: disable=import-error
+
 from fastapi import APIRouter, Body, Depends
-
-from database import PersonModel
-from helpers.api_key_auth import admin_required
-from models.workspace import Workspace
-from models.schedule import Schedule
-from services.workspace_service import WorkspaceService
-from services import schedule_service
-
 
 workspace_route = APIRouter()
 workspace_service = WorkspaceService()
@@ -143,4 +143,4 @@ def delete_schedule(
     Returns:
         str: A message indicating whether the deletion was successful.
     """
-    return workspace_service.delete_schedule(schedule_id)
+    return schedule_service.delete_schedule(schedule_id)
