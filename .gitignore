@@ -3,3 +3,4 @@
 venv/
 MySQL
 __pychache__/
+.pylintrc

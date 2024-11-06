@@ -1,6 +1,11 @@
-# settings.py
-from dotenv import load_dotenv
+"""
+Settings for the FastAPI application.
+
+This module defines the database configuration and environment variables."""
+
 import os
+from dotenv import load_dotenv
+
 
 load_dotenv()
 

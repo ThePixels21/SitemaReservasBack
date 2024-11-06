@@ -4,10 +4,12 @@ Main module for FastAPI application setup.
 This module sets up the FastAPI application, manages the database connection
 lifecycle, and includes routes.
 """
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from starlette.responses import RedirectResponse
-from config.database import database as connection
+from config.database import database as connection  # pylint: disable=E0401
+
 
 @asynccontextmanager
 async def manage_lifespan(_app: FastAPI):
@@ -24,9 +26,9 @@ async def manage_lifespan(_app: FastAPI):
         if not connection.is_closed():
             connection.close()
 
-app = FastAPI(
-    lifespan=manage_lifespan
-)
+
+app = FastAPI(lifespan=manage_lifespan)
+
 
 @app.get("/")
 async def read_root():

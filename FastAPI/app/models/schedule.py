@@ -7,10 +7,12 @@ Classes:
     ScheduleStatusEnum: Enumeration for the status of a schedule.
     Schedule: Represents a schedule with various attributes.
 """
+
 from datetime import datetime
 from enum import Enum
 
 from pydantic import BaseModel
+
 
 class ScheduleStatusEnum(str, Enum):
     """
@@ -20,8 +22,10 @@ class ScheduleStatusEnum(str, Enum):
         AVAILABLE (str): Indicates the schedule is available.
         UNAVAILABLE (str): Indicates the schedule is unavailable.
     """
+
     AVAILABLE = "Available"
     UNAVAILABLE = "Unavailable"
+
 
 class Schedule(BaseModel):
     """
@@ -34,6 +38,7 @@ class Schedule(BaseModel):
         closingTime (datetime): The closing time of the schedule.
         status (ScheduleStatusEnum): The current status of the schedule.
     """
+
     id: int
     openingTime: datetime
     closingTime: datetime

@@ -37,6 +37,7 @@ class PromotionStatusEnum(str, Enum):
         AVAILABLE (str): Indicates the promotion is currently available.
         FINISHED (str): Indicates the promotion has finished.
     """
+
     AVAILABLE = "Available"
     FINISHED = "Finished"
 
@@ -56,6 +57,7 @@ class Promotion(BaseModel):
         reservation (Optional[Reservation]): The reservation associated with the promotion, if any.
         createdBy (str): The user who created the promotion.
     """
+
     id: int
     description: str
     discount: float

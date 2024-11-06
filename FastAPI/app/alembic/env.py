@@ -1,10 +1,14 @@
+"""
+Environment configuration for Alembic migrations.
+
+This module sets up the context and configurations necessary to run database migrations
+using Alembic and SQLAlchemy.
+"""
+
 from logging.config import fileConfig
-
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-from alembic_models.models import Base, DATABASE_URL
-
-from alembic import context
+from sqlalchemy import engine_from_config, pool  # pylint: disable=E0401
+from alembic_models.models import Base, DATABASE_URL  # pylint: disable=E0401
+from alembic import context  # pylint: disable=E0401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -66,9 +70,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

@@ -8,6 +8,7 @@ Classes:
     ReservationStatusEnum: Enumeration for the status of a reservation.
     Reservation: Represents a reservation with various attributes.
 """
+
 from datetime import datetime
 from enum import Enum
 
@@ -25,8 +26,10 @@ class ReservationStatusEnum(str, Enum):
         ACTIVE (str): Indicates the reservation is currently active.
         CANCELLED (str): Indicates the reservation has been cancelled.
     """
+
     ACTIVE = "Active"
     CANCELLED = "Cancelled"
+
 
 class Reservation(BaseModel):
     """
@@ -42,6 +45,7 @@ class Reservation(BaseModel):
         status (ReservationStatusEnum): The current status of the reservation.
         price (float): The price of the reservation.
     """
+
     id: int
     reservedBy: User
     workspace: Workspace

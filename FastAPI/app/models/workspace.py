@@ -8,9 +8,11 @@ Classes:
     WorkspaceEnum: Enumeration for the type of workspace.
     Workspace: Represents a workspace with various attributes.
 """
+
 from enum import Enum
 
 from pydantic import BaseModel
+
 
 class WorkspaceEnum(str, Enum):
     """
@@ -21,9 +23,11 @@ class WorkspaceEnum(str, Enum):
         MEETING_ROOM (str): Indicates the workspace is a meeting room.
         DESK (str): Indicates the workspace is a desk.
     """
+
     OFFICE = "Office"
     MEETING_ROOM = "MeetingRoom"
     DESK = "Desk"
+
 
 class Workspace(BaseModel):
     """
@@ -38,6 +42,7 @@ class Workspace(BaseModel):
         availableSchedules (list): A list of available schedules for the workspace.
         createdBy (str): The user who created the workspace.
     """
+
     id: int
     type: WorkspaceEnum
     capacity: int
