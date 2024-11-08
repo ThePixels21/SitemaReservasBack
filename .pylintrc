@@ -1,0 +1,9 @@
+[MESSAGES CONTROL]
+disable=
+    invalid-name,
+    import-error,
+    missing-function-docstring,
+    unused-import
+
+[MASTER]
+ignore-patterns=alembic/versions/.*\.py
