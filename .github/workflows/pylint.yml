@@ -28,7 +28,7 @@ jobs:
 
       - name: Run Pylint on the whole project
         run: |
-          pylint --ignore=FastAPI/app/alembic/versions ./**/*.py 
+          pylint ./**/*.py 
 
       - name: Analysing the code with pylint
         run: |
