@@ -5,6 +5,8 @@ This module sets up the FastAPI application, manages the database connection
 lifecycle, and includes routes.
 """
 from contextlib import asynccontextmanager
+
+from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 
 from database import initialize_database, database as connection
@@ -31,6 +33,14 @@ async def manage_lifespan(_app: FastAPI):
 
 app = FastAPI(
     lifespan=manage_lifespan
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.get("/")
