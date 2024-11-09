@@ -1,3 +1,4 @@
+#pylint: skip-file
 """
 Environment configuration for Alembic migrations.
 
