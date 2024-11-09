@@ -3,3 +3,5 @@
 venv/
 MySQL
 __pychache__/
+FastAPI/alembic/versions
+.pylintrc
