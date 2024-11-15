@@ -56,7 +56,6 @@ class Promotion(BaseModel):
         reservation (Optional[Reservation]): The reservation associated with the promotion, if any.
         createdBy (str): The user who created the promotion.
     """
-    id: int
     description: str
     discount: float
     startTime: datetime

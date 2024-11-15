@@ -42,4 +42,4 @@ class Workspace(BaseModel):
     capacity: int = Field(..., gt=0, description="Capacity must be greater than 0")
     hourlyRate: float = Field(..., gt=0, description="Hourly rate must be positive")
     availableSchedules: list
-    createdBy: str
+    createdBy: int

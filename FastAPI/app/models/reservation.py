@@ -13,9 +13,6 @@ from enum import Enum
 
 from pydantic import BaseModel
 
-from .person import User
-from .workspace import Workspace
-
 
 class ReservationStatusEnum(str, Enum):
     """
@@ -42,10 +39,10 @@ class Reservation(BaseModel):
         status (ReservationStatusEnum): The current status of the reservation.
         price (float): The price of the reservation.
     """
-    id: int
-    reservedBy: User
-    workspace: Workspace
+    reservedBy: int
+    workspace: int
     startTime: datetime
-    endTime: datetime
+    endTime: datetime = None
+    cancelledAt: datetime = None
     status: ReservationStatusEnum
     price: float

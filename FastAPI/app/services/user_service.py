@@ -16,10 +16,16 @@ Imports:
 
 from peewee import DoesNotExist, IntegrityError
 
+<<<<<<< HEAD
 from models.person import User # pylint: disable=import-error
 from database import PersonModel # pylint: disable=import-error
 from services.auth_service import get_password_hash # pylint: disable=import-error
 from fastapi import Body, HTTPException
+=======
+from models.person import User,RoleEnum
+from database import PersonModel
+from services.auth_service import get_current_user, get_password_hash
+>>>>>>> 807b283 (CRUD reservation, history user reservations, role user)
 
 
 class UserService:
@@ -40,7 +46,7 @@ class UserService:
         Returns:
             List[UserModel]: A list of all users.
         """
-        users = list(PersonModel.select())
+        users = list(PersonModel.select)
         return users
 
     @staticmethod
@@ -64,6 +70,18 @@ class UserService:
             raise HTTPException(status_code=404, detail="User not found") from exc
 
     @staticmethod
+    async def get_user_by_token(token: str):
+        """
+        Retrieve the user by their access token.
+        """
+        user = await get_current_user(token)
+
+        if user is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        return user
+
+    @staticmethod
     def create_user(user: User = Body(...)):
         """
         Create a new user in the database with validation.
@@ -78,6 +96,8 @@ class UserService:
             HTTPException: If any validation fails or the user already exists.
         """
         # Password validation
+        if user.name is None or user.email is None or user.password is None or user.role is None:
+            raise HTTPException(status_code=400, detail="Missing required fields")
         if len(user.password) < 8:
             raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
 
@@ -104,9 +124,8 @@ class UserService:
                 name=user.name,
                 email=user.email,
                 password=get_password_hash(user.password),
-                role=user.role
+                role=RoleEnum.USER
             )
-            print(created_user)
             return created_user
 
         except IntegrityError as exc:
@@ -132,7 +151,9 @@ class UserService:
             existing_user = PersonModel.get(PersonModel.id == user_id)
 
             # Password validation if it is to be updated
-            if user.password and len(user.password) < 8:
+            if user.email is None or user.password is None or user.role is None:
+                raise HTTPException(status_code=400, detail="Missing required fields")
+            if user.password and len(user.password) < 8 or user.name is None:
                 raise HTTPException(
                     status_code=400, detail="Password must be at least 8 characters"
                     )

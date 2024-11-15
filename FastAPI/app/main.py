@@ -13,6 +13,7 @@ from database import initialize_database, database as connection
 from helpers.api_key_auth import get_api_key
 from routes.user_route import user_route
 from routes.workspace_route import workspace_route
+from routes.reservation_route import reservation_route
 from fastapi import FastAPI,Depends
 
 @asynccontextmanager
@@ -52,10 +53,19 @@ async def read_root():
     """
     return RedirectResponse(url="/docs")
 
-app.include_router(user_route,prefix="/users",tags=["Users"],dependencies=[Depends(get_api_key)])
+app.include_router(
+    user_route,prefix="/users",
+    tags=["Users"],
+    dependencies=[Depends(get_api_key)])
 app.include_router(
     workspace_route,
     prefix="/workspaces",
     tags=["workspaces"],
+    dependencies=[Depends(get_api_key)]
+)
+app.include_router(
+    reservation_route,
+    prefix="/reservations",
+    tags=["reservations"],
     dependencies=[Depends(get_api_key)]
 )

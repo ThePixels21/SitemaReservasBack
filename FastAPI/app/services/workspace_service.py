@@ -19,13 +19,13 @@ from database import (WorkspaceModel, ScheduleModel)
 from models.workspace import Workspace
 
 from fastapi import Body
-# pylint: enable=unused-import
 
 class WorkspaceService:
     """
      Service class for managing workspaces and their schedules.
     """
-    def get_workspaces(self):
+    @staticmethod
+    def get_workspaces():
         """
         Get all workspaces, including their schedules.
         """
@@ -41,7 +41,8 @@ class WorkspaceService:
 
         return results
 
-    def get_workspace(self, workspace_id: int):
+    @staticmethod
+    def get_workspace(workspace_id: int):
         """
         Get a specific workspace along with its schedules.
         """
@@ -52,7 +53,8 @@ class WorkspaceService:
         except DoesNotExist:
             return "Workspace not found"
 
-    def create_workspace(self, workspace: Workspace = Body(...)):
+    @staticmethod
+    def create_workspace(workspace: Workspace = Body(...)):
         """
         Create a new workspace.
         """
@@ -64,14 +66,16 @@ class WorkspaceService:
         )
         return workspace
 
-    def update_workspace(self, workspace_id: int, workspace_data: dict):
+    @staticmethod
+    def update_workspace(workspace_id: int, workspace_data: dict):
         """
         Update an existing workspace.
         """
         WorkspaceModel.update(workspace_data).where(WorkspaceModel.id == workspace_id).execute()
         return "Workspace updated successfully"
 
-    def delete_workspace(self, workspace_id: int):
+    @staticmethod
+    def delete_workspace(workspace_id: int):
         """
         Delete a workspace and its schedules if no future schedules are assigned.
 
