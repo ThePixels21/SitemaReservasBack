@@ -47,13 +47,7 @@ def initialize_database():
         None
     """
     with database:
-<<<<<<< HEAD
-        database.create_tables([PersonModel, WorkspaceModel, ScheduleModel], safe=True)
-=======
         database.create_tables([PersonModel, WorkspaceModel, ScheduleModel, ReservationModel,PromotionModel, permissionModel, RolePermissionModel], safe=True)
-
-
->>>>>>> 807b283 (CRUD reservation, history user reservations, role user)
 class PersonModel(Model):
     """
     Represents a person with attributes such as ID, name, email, password, and role.
