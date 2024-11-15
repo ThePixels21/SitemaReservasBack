@@ -16,10 +16,11 @@ Imports:
 
 from peewee import DoesNotExist, IntegrityError
 
-from models.person import User # pylint: disable=import-error
-from database import PersonModel # pylint: disable=import-error
-from services.auth_service import get_password_hash # pylint: disable=import-error
+from models.person import User,RoleEnum
+from database import PersonModel
 from fastapi import Body, HTTPException
+from services.auth_service import get_password_hash,get_current_user
+
 
 class UserService:
     """
