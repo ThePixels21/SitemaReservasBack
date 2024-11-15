@@ -47,7 +47,15 @@ def initialize_database():
         None
     """
     with database:
-        database.create_tables([PersonModel, WorkspaceModel, ScheduleModel, ReservationModel,PromotionModel, permissionModel, RolePermissionModel], safe=True)
+        database.create_tables([
+            PersonModel,
+            WorkspaceModel,
+            ScheduleModel,
+            ReservationModel,
+            PromotionModel,
+            PermissionModel,
+            RolePermissionModel
+            ], safe=True)
 class PersonModel(Model):
     """
     Represents a person with attributes such as ID, name, email, password, and role.
@@ -81,7 +89,7 @@ class PersonModel(Model):
         database = database
         table_name = "person"
 
-class permissionModel(Model):
+class PermissionModel(Model):
     """
     Represents a permission with attributes such as ID and name.
 
@@ -116,7 +124,7 @@ class RolePermissionModel(Model):
     """
 
     id = AutoField(primary_key=True)
-    permission_id = ForeignKeyField(permissionModel, backref="role_permission")
+    permission_id = ForeignKeyField(PermissionModel, backref="role_permission")
     person_id = ForeignKeyField(PersonModel, backref="role_permission")
     # pylint: disable=too-few-public-methods
     class Meta:
