@@ -14,9 +14,10 @@ Imports:
     - UserModel (Peewee model for database interaction)
 """
 
+import re
 from peewee import DoesNotExist, IntegrityError
 
-from models.person import User,RoleEnum
+from models.person import User
 from database import PersonModel
 from fastapi import Body, HTTPException
 from services.auth_service import get_password_hash,get_current_user
@@ -90,8 +91,6 @@ class UserService:
             HTTPException: If any validation fails or the user already exists.
         """
         # Password validation
-        if user.name is None or user.email is None or user.password is None or user.role is None:
-            raise HTTPException(status_code=400, detail="Missing required fields")
         if len(user.password) < 8:
             raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
 
@@ -105,6 +104,12 @@ class UserService:
             raise HTTPException(status_code=400, detail="Password must contain a special character")
 
         try:
+            if not all([user.name, user.email, user.password, user.role]):
+                raise HTTPException(status_code=400, detail="Missing required fields")
+            # Patrón actualizado para permitir los dominios especificados
+            pattern = r'^[a-zA-Z0-9.-]+@(gmail\.(com|co|com\.co)|eam\.edu\.co)$'
+            if re.match(pattern, user.email) is None:
+                raise HTTPException(status_code=400,detail="Use a valid characters")
             for existing_user in PersonModel.select():
                 if existing_user.email == user.email:
                     raise HTTPException(status_code=400, detail="User already exists")
@@ -118,7 +123,7 @@ class UserService:
                 name=user.name,
                 email=user.email,
                 password=get_password_hash(user.password),
-                role=RoleEnum.USER
+                role=user.role
             )
             return created_user
 
