@@ -69,9 +69,11 @@ def create_workspace(
         return workspace_service.create_workspace(workspace, created_by=_current_user.id)
 
     except ValueError as ve:
-        raise HTTPException(status_code=400, detail=f"Error: {str(ve)}")
+        raise HTTPException(
+            status_code=400, detail=f"Error: {str(ve)}") from ve
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Ha ocurrido un error inesperado: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Ha ocurrido un error inesperado: {str(e)}") from e
 
 
 @workspace_route.put("/{workspace_id}")
@@ -156,10 +158,18 @@ def delete_schedule(
 
 @workspace_route.get("/workspaces/filter", response_model=List[Workspace])
 def filter_workspaces(
-    workspace_type: Optional[str] = Query(None, description="Workspace type (e.g., office, meeting room)"),
-    min_capacity: Optional[int] = Query(None, gt=0, description="Minimum capacity of the workspace"),
-    date: Optional[str] = Query(None, description="Available date in format YYYY-MM-DD"),
-    time: Optional[str] = Query(None, description="Available time in format HH:MM"),
+        workspace_type: Optional[str] = Query(
+            None, description="Workspace type (e.g., office, meeting room)"
+        ),
+        min_capacity: Optional[int] = Query(
+            None, gt=0, description="Minimum capacity of the workspace"
+        ),
+        date: Optional[str] = Query(
+            None, description="Available date in format YYYY-MM-DD"
+        ),
+        time: Optional[str] = Query(
+            None, description="Available time in format HH:MM"
+        ),
 ):
     """
     Filter workspaces by type, minimum capacity, and availability by date/time.
@@ -175,5 +185,7 @@ def filter_workspaces(
     """
     workspaces = workspace_service.filter_workspaces(workspace_type, min_capacity, date, time)
     if not workspaces:
-        raise HTTPException(status_code=404, detail="No workspaces found with the specified filters")
+        raise HTTPException(
+            status_code=404, detail="No workspaces found with the specified filters"
+        )
     return workspaces
