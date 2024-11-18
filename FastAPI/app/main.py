@@ -6,7 +6,6 @@ lifecycle, and includes routes.
 """
 from contextlib import asynccontextmanager
 
-from fastapi.exceptions import RequestValidationError
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse, JSONResponse
 
@@ -14,6 +13,7 @@ from database import initialize_database, database as connection
 from helpers.api_key_auth import get_api_key
 from routes.user_route import user_route
 from routes.workspace_route import workspace_route
+from fastapi.exceptions import RequestValidationError
 from fastapi import FastAPI,Depends, Request
 
 @asynccontextmanager
@@ -55,7 +55,7 @@ async def read_root():
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
+async def validation_exception_handler(request: Request, exc: RequestValidationError): # pylint: disable=unused-argument
     """
     Handle validation errors for requests.
 
@@ -70,7 +70,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         status_code=422,
         content={
             "detail": [{
-                "msg": "Formato de entrada inválido. Por favor, verifique los campos y asegúrese de que tienen los tipos correctos",
+                "msg": "Formato de entrada inválido. Por favor, verifique los campos y asegúrese"
+                       " de que tienen los tipos correctos",
                 "error_details": exc.errors()
             }]
         },
