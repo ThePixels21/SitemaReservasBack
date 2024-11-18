@@ -19,7 +19,7 @@ from peewee import DoesNotExist, IntegrityError
 from database import (WorkspaceModel, ScheduleModel)
 from models.workspace import Workspace
 
-from fastapi import Body, HTTPException
+from fastapi import HTTPException
 
 
 # pylint: enable=unused-import
@@ -146,6 +146,22 @@ class WorkspaceService:
             date: Optional[str],
             time: Optional[str],
     ) -> List[WorkspaceModel]:
+        """
+        Filters workspaces based on the provided criteria.
+
+        Args:
+            workspace_type (Optional[str]): The type of workspace
+            to filter (e.g., 'office', 'conference room').
+            min_capacity (Optional[int]): The minimum capacity required for the workspace.
+            date (Optional[str]): The date of interest, in the format 'YYYY-MM-DD'.
+            time (Optional[str]): The time of interest, in the format 'HH:MM'.
+
+        Returns:
+            List[WorkspaceModel]: A list of workspaces that match the provided filters.
+
+        Raises:
+            ValueError: If the provided date and time do not form a valid datetime.
+        """
         query = WorkspaceModel.select()
 
         if workspace_type:
