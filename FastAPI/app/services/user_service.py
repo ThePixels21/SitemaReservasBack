@@ -14,12 +14,13 @@ Imports:
     - UserModel (Peewee model for database interaction)
 """
 
+import re
 from peewee import DoesNotExist, IntegrityError
 
-from models.person import User # pylint: disable=import-error
-from database import PersonModel # pylint: disable=import-error
-from services.auth_service import get_password_hash # pylint: disable=import-error
+from models.person import User
+from database import PersonModel
 from fastapi import Body, HTTPException
+from services.auth_service import get_password_hash,get_current_user
 
 
 class UserService:
@@ -40,7 +41,7 @@ class UserService:
         Returns:
             List[UserModel]: A list of all users.
         """
-        users = list(PersonModel.select())
+        users = list(PersonModel.select)
         return users
 
     @staticmethod
@@ -62,6 +63,18 @@ class UserService:
             return user
         except DoesNotExist as exc:
             raise HTTPException(status_code=404, detail="User not found") from exc
+
+    @staticmethod
+    async def get_user_by_token(token: str):
+        """
+        Retrieve the user by their access token.
+        """
+        user = await get_current_user(token)
+
+        if user is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        return user
 
     @staticmethod
     def create_user(user: User = Body(...)):
@@ -91,6 +104,12 @@ class UserService:
             raise HTTPException(status_code=400, detail="Password must contain a special character")
 
         try:
+            if not all([user.name, user.email, user.password, user.role]):
+                raise HTTPException(status_code=400, detail="Missing required fields")
+            # Patrón actualizado para permitir los dominios especificados
+            pattern = r'^[a-zA-Z0-9.-]+@(gmail\.(com|co|com\.co)|eam\.edu\.co)$'
+            if re.match(pattern, user.email) is None:
+                raise HTTPException(status_code=400,detail="Use a valid characters")
             for existing_user in PersonModel.select():
                 if existing_user.email == user.email:
                     raise HTTPException(status_code=400, detail="User already exists")
@@ -106,7 +125,6 @@ class UserService:
                 password=get_password_hash(user.password),
                 role=user.role
             )
-            print(created_user)
             return created_user
 
         except IntegrityError as exc:
@@ -132,7 +150,9 @@ class UserService:
             existing_user = PersonModel.get(PersonModel.id == user_id)
 
             # Password validation if it is to be updated
-            if user.password and len(user.password) < 8:
+            if user.email is None or user.password is None or user.role is None:
+                raise HTTPException(status_code=400, detail="Missing required fields")
+            if user.password and len(user.password) < 8 or user.name is None:
                 raise HTTPException(
                     status_code=400, detail="Password must be at least 8 characters"
                     )

@@ -59,3 +59,19 @@ def admin_required(user_id: int):
             detail="Admin access required."
         )
     return user
+
+def user_required(user_id: int):
+    """
+    Verifies if the user has an admin role. Only admins can proceed.
+
+    :param user_id: ID of the current user.
+    :return: The PersonModel instance if the user is an admin.
+    :raises HTTPException: If the user is not an admin.
+    """
+    user = PersonModel.get_or_none(PersonModel.id == user_id)
+    if user is None or user.role != RoleEnum.USER:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User access required."
+        )
+    return user

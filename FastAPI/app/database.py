@@ -47,9 +47,15 @@ def initialize_database():
         None
     """
     with database:
-        database.create_tables([PersonModel, WorkspaceModel, ScheduleModel, ReservationModel,PromotionModel, permissionModel, RolePermissionModel], safe=True)
-
-
+        database.create_tables([
+            PersonModel,
+            WorkspaceModel,
+            ScheduleModel,
+            ReservationModel,
+            PromotionModel,
+            PermissionModel,
+            RolePermissionModel
+            ], safe=True)
 class PersonModel(Model):
     """
     Represents a person with attributes such as ID, name, email, password, and role.
@@ -83,7 +89,7 @@ class PersonModel(Model):
         database = database
         table_name = "person"
 
-class permissionModel(Model):
+class PermissionModel(Model):
     """
     Represents a permission with attributes such as ID and name.
 
@@ -118,7 +124,7 @@ class RolePermissionModel(Model):
     """
 
     id = AutoField(primary_key=True)
-    permission_id = ForeignKeyField(permissionModel, backref="role_permission")
+    permission_id = ForeignKeyField(PermissionModel, backref="role_permission")
     person_id = ForeignKeyField(PersonModel, backref="role_permission")
     # pylint: disable=too-few-public-methods
     class Meta:
@@ -144,7 +150,7 @@ class WorkspaceModel(Model):
     type = CharField(max_length=50)
     capacity = IntegerField()
     hourlyRate = DoubleField()
-    created_by = ForeignKeyField(PersonModel, backref="workspace")
+    created_by = ForeignKeyField(PersonModel, backref="workspace", column_name = "created_by")
 
 
     class Meta:
@@ -158,6 +164,72 @@ class WorkspaceModel(Model):
         # pylint: disable=too-few-public-methods
         database = database
         table_name = 'workspace'
+
+
+
+class ReservationModel(Model):
+    """
+    Represents a reservation with attributes such as ID,
+    reserved by, workspace, start time, end time, status, and price.
+
+    atributes:
+    - id: The unique identifier for the reservation.
+    - reservedBy: The user who made the reservation.
+    - workspace: The workspace that is reserved.
+    - startTime: The start time of the reservation.
+    """
+
+    id = AutoField(primary_key=True)
+    reservedBy = ForeignKeyField(PersonModel, backref="reservation",column_name="reservedBy")
+    workspace = ForeignKeyField(WorkspaceModel, backref="reservation",column_name="workspace")
+    startTime = CharField()
+    endTime = CharField()
+    status = CharField()
+    price = CharField()
+    # pylint: disable=too-few-public-methods
+    class Meta:
+
+        """
+        Meta class for ReservationModel.
+        """
+        database = database
+        table_name = "reservation"
+
+
+
+class PromotionModel(Model):
+    """
+    Represents a promotion with attributes such as ID, description, discount, start time,
+    end time, status, reservation, and created by.
+
+    atributes:
+    - id: The unique identifier for the promotion.
+    - description: A brief description of the promotion.
+    - discount: The discount percentage offered by the promotion.
+    - startTime: The start time of the promotion.
+    - endTime: The end time of the promotion.
+    - status: The current status of the promotion.
+    - reservation: The reservation associated with the promotion, if any.
+    - createdBy: The user who created the promotion.
+    """
+
+    id = AutoField(primary_key=True)
+    description = CharField()
+    discount = CharField()
+    startTime = CharField()
+    endTime = CharField()
+    status = CharField()
+    reservation = ForeignKeyField(ReservationModel, backref="promotion")
+    created_By = ForeignKeyField(PersonModel, backref="promotion")
+    # pylint: disable=too-few-public-methods
+    class Meta:
+        """
+        Meta class for PromotionModel.
+        """
+        database = database
+        table_name = "promotion"
+
+
 
 
 

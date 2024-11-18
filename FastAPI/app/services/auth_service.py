@@ -89,6 +89,7 @@ def get_user(email: str):
     ### Returns
     - PersonModel: The user object if found, otherwise None.
     """
+    print(email)
     return PersonModel.filter(
         (PersonModel.email == email) |
         (PersonModel.email == email)
@@ -190,8 +191,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         token_data = TokenData(email=email)
     except JWTError as exc:
         raise credentials_exception from exc
-
     user = get_user(email=token_data.email)
+    print(user)
     if user is None:
         raise credentials_exception
     return user

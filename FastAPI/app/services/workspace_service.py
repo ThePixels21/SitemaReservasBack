@@ -28,7 +28,8 @@ class WorkspaceService:
     """
      Service class for managing workspaces and their schedules.
     """
-    def get_workspaces(self):
+    @staticmethod
+    def get_workspaces():
         """
         Get all workspaces, including their schedules.
         """
@@ -44,7 +45,8 @@ class WorkspaceService:
 
         return results
 
-    def get_workspace(self, workspace_id: int):
+    @staticmethod
+    def get_workspace(workspace_id: int):
         """
         Get a specific workspace along with its schedules.
         """

@@ -56,6 +56,19 @@ def get_user_by_id(user_id: int):
     """
     return UserService.get_user(user_id)
 
+@user_route.get("/{token}/")
+async def get_current_user_by_token(token: str):
+    """
+    Retrieves the current user by their Token.
+
+    ### Args
+    - token (str): The login access token.
+
+    ### Returns
+    - User: The current user information corresponding to the provided Token.
+    """
+    return await UserService.get_user_by_token(token)
+
 @user_route.post("/")
 def create_user(user: User = Body(...)):
     """
