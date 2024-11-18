@@ -22,7 +22,8 @@ class ScheduleService:
     Service class for managing schedules.
     """
 
-    def add_schedule(self, workspace_id: int, schedule_data: dict) -> str:
+    @staticmethod
+    def add_schedule(workspace_id: int, schedule_data: dict) -> str:
         """
         Add a new schedule to a workspace.
 
@@ -34,6 +35,9 @@ class ScheduleService:
             str: A message indicating the result of the operation.
         """
         try:
+            if schedule_data['closing_time'] <= schedule_data['opening_time']:
+                return "Closing time must be later than opening time"
+
             workspace = WorkspaceModel.get(WorkspaceModel.id == workspace_id)
             ScheduleModel.create(
                 opening_time=schedule_data['opening_time'],
@@ -45,7 +49,9 @@ class ScheduleService:
         except DoesNotExist:
             return "Workspace not found"
 
-    def delete_schedule(self, schedule_id: int) -> str:
+
+    @staticmethod
+    def delete_schedule(schedule_id: int) -> str:
         """
         Delete a specific schedule by ID.
 

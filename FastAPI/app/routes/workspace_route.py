@@ -11,7 +11,7 @@ Routes:
     - DELETE /schedules/{schedule_id}: Delete a specific schedule by ID.
 """
 from http.client import HTTPException
-
+from typing import Optional, List
 
 from database import PersonModel # pylint: disable=import-error
 from helpers.api_key_auth import admin_required # pylint: disable=import-error
@@ -20,7 +20,7 @@ from models.schedule import Schedule # pylint: disable=import-error
 from services.workspace_service import WorkspaceService # pylint: disable=import-error
 from services import schedule_service # pylint: disable=import-error
 
-from fastapi import APIRouter, Body, Depends
+from fastapi import APIRouter, Body, Depends, Query
 
 workspace_route = APIRouter()
 workspace_service = WorkspaceService()
@@ -65,25 +65,34 @@ def create_workspace(
     Returns:
         dict: The created workspace object.
     """
-    return workspace_service.create_workspace(workspace)
+    try:
+        return workspace_service.create_workspace(workspace, created_by=_current_user.id)
+
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=f"Error: {str(ve)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ha ocurrido un error inesperado: {str(e)}")
+
 
 @workspace_route.put("/{workspace_id}")
 def update_workspace(
-        workspace_id: int,
-        workspace_data: dict,
-        _current_user: PersonModel = Depends(admin_required)):
+    workspace_id: int,
+    workspace: Workspace = Body(...),
+    _current_user: PersonModel = Depends(admin_required)
+):
     """
-    Update an existing workspace.
+    Updates an existing workspace by its ID.
 
-    Args:
-        _current_user: The current user, must be an admin.
-        workspace_id (int): The ID of the workspace to update.
-        workspace_data (dict): A dictionary containing the updated workspace data.
+    ### Args
+    - workspace_id (int): The unique identifier of the workspace.
+    - workspace (Workspace): The workspace data to update.
+    - _current_user (PersonModel): The current user, must be an admin.
 
-    Returns:
-        str: A message indicating whether the update was successful.
+    ### Returns
+    - Workspace: The updated workspace information.
     """
-    return workspace_service.update_workspace(workspace_id, workspace_data)
+    return workspace_service.update_workspace(workspace_id, workspace)
+
 
 @workspace_route.delete("/{workspace_id}")
 def delete_workspace(
@@ -144,3 +153,27 @@ def delete_schedule(
         str: A message indicating whether the deletion was successful.
     """
     return schedule_service.delete_schedule(schedule_id)
+
+@workspace_route.get("/workspaces/filter", response_model=List[Workspace])
+def filter_workspaces(
+    workspace_type: Optional[str] = Query(None, description="Workspace type (e.g., office, meeting room)"),
+    min_capacity: Optional[int] = Query(None, gt=0, description="Minimum capacity of the workspace"),
+    date: Optional[str] = Query(None, description="Available date in format YYYY-MM-DD"),
+    time: Optional[str] = Query(None, description="Available time in format HH:MM"),
+):
+    """
+    Filter workspaces by type, minimum capacity, and availability by date/time.
+
+    Args:
+        workspace_type (Optional[str]): The type of workspace (e.g., office, meeting room).
+        min_capacity (Optional[int]): The minimum capacity of the workspace.
+        date (Optional[str]): The desired date in YYYY-MM-DD format.
+        time (Optional[str]): The desired time in HH:MM format.
+
+    Returns:
+        List[Workspace]: List of workspaces that match the filters.
+    """
+    workspaces = workspace_service.filter_workspaces(workspace_type, min_capacity, date, time)
+    if not workspaces:
+        raise HTTPException(status_code=404, detail="No workspaces found with the specified filters")
+    return workspaces

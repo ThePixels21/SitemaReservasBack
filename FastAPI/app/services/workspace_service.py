@@ -12,13 +12,16 @@ Methods:
     - delete_workspace: Deletes a workspace and its schedules if no future schedules are assigned.
 """
 from datetime import datetime
+from typing import Optional, List
 
-from peewee import DoesNotExist
+from peewee import DoesNotExist, IntegrityError
 
 from database import (WorkspaceModel, ScheduleModel)
 from models.workspace import Workspace
 
-from fastapi import Body
+from fastapi import Body, HTTPException
+
+
 # pylint: enable=unused-import
 
 class WorkspaceService:
@@ -52,26 +55,61 @@ class WorkspaceService:
         except DoesNotExist:
             return "Workspace not found"
 
-    def create_workspace(self, workspace: Workspace = Body(...)):
+    @staticmethod
+    def create_workspace(workspace: Workspace, created_by: int):
         """
         Create a new workspace.
+
+        Args:
+            workspace (Workspace): The workspace data to create.
+            created_by (int): The ID of the user creating the workspace.
+
+        Returns:
+            Workspace: The created workspace object.
         """
-        WorkspaceModel.create(
+        new_workspace = WorkspaceModel.create(
             type=workspace.type.value,
             capacity=workspace.capacity,
             hourlyRate=workspace.hourlyRate,
-            created_by=workspace.createdBy
+            created_by=created_by
         )
-        return workspace
+        return new_workspace
 
-    def update_workspace(self, workspace_id: int, workspace_data: dict):
+    @staticmethod
+    def update_workspace(workspace_id: int, workspace: Workspace):
         """
-        Update an existing workspace.
-        """
-        WorkspaceModel.update(workspace_data).where(WorkspaceModel.id == workspace_id).execute()
-        return "Workspace updated successfully"
+        Updates an existing workspace's information in the database.
 
-    def delete_workspace(self, workspace_id: int):
+        ### Args:
+        - workspace_id (int): The ID of the workspace to update.
+        - workspace (Workspace): A Pydantic model instance representing the updated workspace data.
+
+        ### Returns:
+        - WorkspaceModel: The updated workspace.
+
+        ### Raises:
+        - HTTPException: If the workspace is not found or the update fails.
+        """
+        try:
+            # Find the workspace to update
+            existing_workspace = WorkspaceModel.get(WorkspaceModel.id == workspace_id)
+
+            # Validate and update fields
+            existing_workspace.type = workspace.type.value or existing_workspace.type
+            existing_workspace.capacity = workspace.capacity or existing_workspace.capacity
+            existing_workspace.hourlyRate = workspace.hourlyRate or existing_workspace.hourlyRate
+
+            # Save changes to the database
+            existing_workspace.save()
+            return existing_workspace
+
+        except DoesNotExist as exc:
+            raise HTTPException(status_code=404, detail="Workspace not found") from exc
+        except IntegrityError as exc:
+            raise HTTPException(status_code=400, detail="Could not update workspace") from exc
+
+    @staticmethod
+    def delete_workspace( workspace_id: int):
         """
         Delete a workspace and its schedules if no future schedules are assigned.
 
@@ -98,3 +136,26 @@ class WorkspaceService:
 
         except DoesNotExist:
             return "Workspace not found"
+
+    def filter_workspaces(
+            self,
+            workspace_type: Optional[str],
+            min_capacity: Optional[int],
+            date: Optional[str],
+            time: Optional[str],
+    ) -> List[WorkspaceModel]:
+        query = WorkspaceModel.select()
+
+        if workspace_type:
+            query = query.where(WorkspaceModel.type == workspace_type)
+        if min_capacity:
+            query = query.where(WorkspaceModel.capacity >= min_capacity)
+        if date and time:
+            datetime_requested = datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M")
+            query = query.join(ScheduleModel).where(
+                (ScheduleModel.opening_time <= datetime_requested) &
+                (ScheduleModel.closing_time >= datetime_requested) &
+                (ScheduleModel.status == "Available")
+            )
+
+        return list(query)

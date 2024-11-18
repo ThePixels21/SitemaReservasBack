@@ -36,10 +36,10 @@ class Workspace(BaseModel):
         capacity (int): The capacity of the workspace.
         hourlyRate (float): The hourly rate for reserving the workspace.
         availableSchedules (list): A list of available schedules for the workspace.
-        createdBy (str): The user who created the workspace.
+        createdBy (int): The user who created the workspace.
     """
     type: WorkspaceEnum
     capacity: int = Field(..., gt=0, description="Capacity must be greater than 0")
     hourlyRate: float = Field(..., gt=0, description="Hourly rate must be positive")
     availableSchedules: list
-    createdBy: str
+    createdBy: int = Field(..., exclude=True)
