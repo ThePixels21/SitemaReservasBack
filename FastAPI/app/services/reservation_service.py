@@ -27,11 +27,14 @@ from datetime import datetime
 from peewee import DoesNotExist, IntegrityError
 from fastapi import Body, HTTPException
 
+from models.promotion import PromotionStatusEnum
 from models.reservation import ReservationStatusEnum
 from models.person import RoleEnum
 from database import ReservationModel
 from services.user_service import UserService
 from services.workspace_service import WorkspaceService
+from models.reservation import Reservation 
+from models.promotion import Promotion 
 
 
 class ReservationService:
@@ -138,6 +141,8 @@ class ReservationService:
         except IntegrityError as exc:
             raise HTTPException(status_code=400, detail="Reservation already exists") from exc
 
+
+
     @staticmethod
     def update_reservation(reservation_id: int, reservation: ReservationModel = Body(...)):
         """
@@ -218,3 +223,78 @@ class ReservationService:
             ReservationModel.select().where(
                 ReservationModel.status == ReservationStatusEnum.CANCELLED))
         return reservation
+    
+    @staticmethod
+    def create_reservation_with_promotion(reservation: Reservation, apply_promotion: bool = False):
+        """
+        Create a reservation and optionally apply a promotion.
+
+        Args:
+            reservation (Reservation): The reservation details.
+            apply_promotion (bool): Whether to apply a promotion.
+
+        Returns:
+            ReservationModel: The created reservation.
+
+        Raises:
+            HTTPException: If validation fails or the reservation already exists.
+        """
+      
+        user = UserService.get_user(reservation.reservedBy)
+        workspace = WorkspaceService.get_workspace(reservation.workspace)
+        if user is None:
+            raise HTTPException(status_code=400, detail="Only need valid user")
+        if workspace is None:
+            raise HTTPException(status_code=400, detail="Only need valid workspace")
+        if user.role != RoleEnum.USER:
+            raise HTTPException(status_code=400, detail="Only users can reserve workspaces")
+        if reservation.startTime > reservation.endTime:
+            raise HTTPException(status_code=400, detail="Start time must be before end time")
+        if reservation.status != ReservationStatusEnum.ACTIVE:
+            raise HTTPException(status_code=400, detail="Reservation status must be active")
+        if reservation.price < 0:
+            raise HTTPException(status_code=400, detail="Reservation price must be positive")
+
+        promotion_details = None
+        
+        if apply_promotion:
+            promotion = Promotion.select().where(
+                (Promotion.status == PromotionStatusEnum.AVAILABLE) & 
+                (Promotion.startTime <= reservation.startTime) & 
+                (Promotion.endTime >= reservation.endTime)
+            ).first()
+
+            if promotion:
+                # Validar condiciones de la promoción
+                if reservation.endTime - reservation.startTime >= promotion.minDuration:
+                    if reservation.startTime.weekday() in [day.value for day in promotion.applicableDays]:
+                        discount = promotion.discount
+                        reservation.price -= reservation.price * (discount / 100) if promotion.discountType == "percent" else discount
+
+                        # Evitar precios negativos
+                        if reservation.price < 0:
+                            reservation.price = 0
+                        promotion_details = {
+                            "description": promotion.description,
+                            "discount": promotion.discount,
+                            "discount_type": promotion.discountType
+                        }
+                else:
+                    raise HTTPException(status_code=400, detail="Reservation does not meet promotion conditions")
+
+        try:
+            created_reservation = ReservationModel.create(
+                reservedBy=user,
+                workspace=workspace,
+                startTime=reservation.startTime,
+                endTime=reservation.endTime,
+                status=ReservationStatusEnum.ACTIVE,
+                price=reservation.price
+            )
+            return {
+                "reservation": created_reservation,
+                "promotion_details": promotion_details
+            }
+        except IntegrityError as exc:
+            raise HTTPException(status_code=400, detail="Reservation already exists") from exc
+

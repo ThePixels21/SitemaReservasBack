@@ -15,6 +15,7 @@ from routes.user_route import user_route
 from routes.workspace_route import workspace_route
 from routes.reservation_route import reservation_route
 from fastapi.exceptions import RequestValidationError
+from routes.promotion_route import promotion_route
 from fastapi import FastAPI,Depends, Request
 
 @asynccontextmanager
@@ -95,3 +96,4 @@ app.include_router(
     tags=["reservations"],
     dependencies=[Depends(get_api_key)]
 )
+app.include_router(promotion_route,prefix="/promotions",tags=["promotions"],dependencies=[Depends(get_api_key)])

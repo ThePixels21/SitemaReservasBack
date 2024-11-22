@@ -62,6 +62,23 @@ def create_reservation(reservation: Reservation = Body(...)):
     """
     return ReservationService.create_reservation(reservation)
 
+@reservation_route.post("/with-promotion/")
+def create_reservation_with_promotion(
+    reservation: Reservation = Body(...), 
+    apply_promotion: bool = Body(False)
+):
+    """
+    Create a reservation and optionally apply a promotion.
+
+    ### Args
+    - reservation (Reservation): Reservation details.
+    - apply_promotion (bool): Whether to apply a promotion.
+
+    ### Returns
+    - ReservationModel: The created reservation.
+    """
+    return ReservationService.create_reservation_with_promotion(reservation, apply_promotion)
+
 @reservation_route.put("/{reservation_id}")
 def update_reservation(reservation_id: int, reservation: Reservation = Body(...)):
     """
